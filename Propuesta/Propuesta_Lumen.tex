@@ -1,0 +1,681 @@
+\documentclass[spanish,11pt,letterpaper]{article}
+
+% Idioma y codificación
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+% Página y encabezados
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{fancyhdr}
+
+% Matemáticas
+\usepackage{mathtools}
+\usepackage{amssymb}
+\usepackage{amsthm}
+
+% Tablas y listas
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{tabularx}
+\usepackage{multicol} 
+
+% Código y color
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{tcolorbox}
+\usepackage{graphicx}
+
+% Índice
+\usepackage{tocloft}
+
+% Enlaces 
+\usepackage{hyperref}
+
+
+% Configuracion de paquetes
+\hypersetup{hidelinks}
+\setlist{itemsep=0pt, topsep=2pt}
+
+\setlength{\cftbeforesecskip}{3pt}
+\setcounter{tocdepth}{2}
+
+\AtBeginDocument{\spanishdeactivate{<>}}
+\decimalpoint 
+
+% Estilo para código Lumen
+\lstdefinelanguage{Lumen}{
+	alsoletter={_},
+	keywords={entero, real, texto, logico, vacio, var, const, funcion,
+		retornar, principal, si, sino_si, sino, mientras, hacer,
+		para, desde, hasta, paso, romper, continuar, leer, escribir},
+	keywordstyle=\bfseries\color{blue!60!black},
+	keywords=[2]{verdadero, falso},
+	keywordstyle=[2]\color{violet},
+	keywords=[3]{raiz, abs, longitud, aTexto, aEntero},
+	keywordstyle=[3]\color{orange!70!black},
+	morecomment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\itshape\color{gray},
+	morestring=[b]",
+	stringstyle=\color{teal},
+	sensitive=true
+}
+
+\lstset{
+	language=Lumen,
+	basicstyle=\ttfamily\small,
+	frame=single,
+	breaklines=true,
+	columns=fixed,
+	keepspaces=true,
+	xleftmargin=0.5em,
+	showstringspaces=false
+}
+
+\begin{document}
+	\begin{titlepage}
+		\centering
+		{\bfseries\LARGE Tecnol\'ogico Nacional de M\'exico \par}
+		{\bfseries\LARGE Instituto Tecnol\'ogico de Veracruz \par}
+		\vspace{1cm}
+		{\scshape\LARGE Ingenier\'ia en Sistemas Computacionales \par}
+		
+		\vfill
+		
+		{\scshape\huge Lumen\par}
+		{\itshape\LARGE Propuesta de Lenguaje\par}
+		
+		\vfill
+		
+		{\Large Alumnos: \par}
+		{\Large Daniel Landero Arias - 23020770\par}
+		{\Large Pedro Armando Zuñiga Duran - 23020847\par}
+		\vspace{0.5cm}
+		{\Large Maestro: \par}
+		{\Large  Jorge Estudillo Ram\'irez\par}
+		
+		\vfill
+		
+		{\Large 16 de octubre 2026 \par}
+	\end{titlepage}
+	
+	\tableofcontents
+	\newpage
+	
+	\section{Introducci\'on}
+	\subsection{Nombre y descripci\'on}
+	\textbf{Lumen} es un lenguaje de programaci\'on de prop\'osito educativo, de tipado est\'atico y sintaxis en español, orientado a la l\'ogica matem\'atica. Su notaci\'on se inspira en las matem\'aticas y el pseudoc\'odigo. Permite declarar variables, constantes, arreglos y funciones, y ofrece estructuras de control y operadores aritm\'eticos, relacionales y l\'ogicos.
+	
+	\subsection{Caracter\'isticas generales}
+	\begin{itemize}
+		\item  Distingue may\'usculas de min\'usculas: \texttt{total} y \texttt{Total} son identificadores distintos.
+		\item Tipado est\'atico: el tipo se declara junto con el identificador y no cambia.
+		\item Cada sentencia termina con \texttt{;}.
+		\item Los bloques se delimitan con llaves \texttt{\{ \}}, obligatorias incluso con una sola instrucci\'on.
+		\item Alcance por bloque: una variable local solo existe en el bloque donde se declara.
+		\item La ejecuci\'on inicia en la funci\'on \texttt{principal}.
+	\end{itemize}
+	
+	\subsection{Alfabeto}
+	Sea $\Sigma$ el alfabeto del lenguaje Lumen, definido como la uni\'on de cuatro
+	conjuntos disjuntos:
+	
+	\[
+	\Sigma = \Sigma_{L} \cup \Sigma_{D} \cup \Sigma_{S} \cup \Sigma_{E}
+	\]
+	
+	donde:
+	
+	\begin{align*}
+		\Sigma_{L} &= \{a, b, \dots, z, A, B, \dots, Z, \_\}
+		&& \text{(letras y guion bajo)} \\
+		\Sigma_{D} &= \{0, 1, 2, 3, 4, 5, 6, 7, 8, 9\}
+		&& \text{(d\'igitos)} \\
+		\Sigma_{S} &= \{+, -, *, /, \%, \text{\textasciicircum}, =, <, >, !, \&, |, :,
+		(, ), \{, \}, [, ], \text{,}, ;, ., \backslash, \text{\textquotedbl}\}
+		&& \text{(s\'imbolos)} \\
+		\Sigma_{E} &= \{\text{espacio}, \text{tabulador}, \text{salto de l\'inea}\}
+		&& \text{(espacios en blanco)}
+	\end{align*}
+	
+	El alfabeto define \'unicamente los caracteres que usa la estructura del
+	lenguaje. El contenido de un texto o de un comentario es un valor y se
+	regula por separado, en sus propias reglas.
+	
+	\newpage
+	
+	\section{Elementos b\'asicos}
+	\subsection{Identificadores}
+	Un identificador es el nombre de una variable, constante, arreglo o funci\'on. Empieza con una letra o con un guion bajo, seguido de letras, d\'igitos o guiones bajos, y no puede ser una palabra reservada. Ejemplos v\'alidos: \texttt{x}, \texttt{suma\_total}, \texttt{\_aux}, \texttt{dato1}. Ejemplos inv\'alidos: \texttt{1dato}, \texttt{mi-var}, \texttt{si}.
+	
+	\subsection{Palabras reservadas}
+	\renewcommand{\arraystretch}{1.15}
+	\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+	\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+	
+	\begin{tabularx}{\linewidth}{L{2.4cm} L{4.4cm} Y L{3.6cm}}
+		\toprule
+		\textbf{Categor\'ia} & \textbf{Palabras} & \textbf{Descripci\'on} & \textbf{Equivale a} \\
+		\midrule
+		Tipos & \texttt{entero}, \texttt{real}, \texttt{texto}, \texttt{logico} & Tipos de datos & \texttt{int}, \texttt{double}, \texttt{String}, \texttt{boolean} \\
+		& \texttt{vacio} & Funci\'on sin valor de retorno & \texttt{void} \\
+		Declaraci\'on & \texttt{var}, \texttt{const} & Declara variable o constante & \texttt{let}, \texttt{final} \\
+		& \texttt{funcion}, \texttt{retornar} & Define una funci\'on y devuelve un valor & \texttt{function}, \texttt{return} \\
+		& \texttt{principal} & Nombre de la funci\'on de entrada & \texttt{main} \\
+		Condicionales & \texttt{si}, \texttt{sino\_si}, \texttt{sino} & Ejecuta un bloque seg\'un una condici\'on & \texttt{if}, \texttt{else if}, \texttt{else} \\
+		Ciclos & \texttt{mientras}, \texttt{hacer} & Repite mientras la condici\'on sea verdadera; \texttt{hacer} ejecuta al menos una vez & \texttt{while}, \texttt{do} \\
+		& \texttt{para}, \texttt{desde}, \texttt{hasta}, \texttt{paso} & Repite sobre un rango de valores & \texttt{for} \\
+		& \texttt{romper}, \texttt{continuar} & Termina el ciclo o salta a la siguiente repetici\'on & \texttt{break}, \texttt{continue} \\
+		Entrada/salida & \texttt{leer}, \texttt{escribir} & Lee del teclado y muestra en pantalla & \texttt{scanf}, \texttt{print} \\
+		Constantes l\'ogicas & \texttt{verdadero}, \texttt{falso} & Valores de verdad & \texttt{true}, \texttt{false} \\
+		\bottomrule
+	\end{tabularx}
+	
+	\subsection{Puntuaci\'on y comentarios}
+	\begin{center}
+		\begin{tabular}{@{}ll@{}}
+			\toprule
+			\textbf{S\'imbolo} & \textbf{Funci\'on} \\
+			\midrule
+			\texttt{;} & Termina una sentencia \\
+			\texttt{\{ \}} & Delimitan un bloque de instrucciones \\
+			\texttt{( )} & Agrupan expresiones, encierran condiciones y par\'ametros \\
+			\texttt{[ ]} & Indican el tamaño de cada dimensi\'on de un arreglo o una posici\'on \\
+			\texttt{,} & Separa elementos de una lista o argumentos \\
+			\texttt{:} & Separa un nombre de su tipo \\
+			\texttt{"} & Delimita un texto \\
+			\bottomrule
+		\end{tabular}
+	\end{center}
+	
+	\begin{center}
+		\begin{tabular}{@{}lll@{}}
+			\toprule
+			\textbf{Comentario} & \textbf{Inicio} & \textbf{Fin} \\
+			\midrule
+			Una l\'inea & \texttt{//} & Fin de la l\'inea \\
+			Multil\'inea & \texttt{/*} & \texttt{*/} \\
+			\bottomrule
+		\end{tabular}
+	\end{center}
+	
+	Los comentarios multil\'inea no se pueden anidar. El contenido de un
+	comentario puede incluir cualquier car\'acter ASCII imprimible.
+	
+	\subsection{Operadores}
+	\begin{center}
+		\begin{tabular}{@{}llll@{}}
+			\toprule
+			\textbf{Tipo} & \textbf{S\'imbolo} & \textbf{Descripci\'on} & \textbf{Ejemplo} \\
+			\midrule
+			Aritm\'etico & \texttt{+} \; \texttt{-} & Suma y resta & \texttt{5 + 3} \\
+			& \texttt{*} \; \texttt{/} & Multiplicaci\'on y divisi\'on & \texttt{7 / 2} \\
+			& \texttt{\%} & Residuo de una divisi\'on & \texttt{10 \% 3} \\
+			& \texttt{\textasciicircum} & Potencia & \texttt{2 \textasciicircum{} 3} \\
+			& \texttt{-} & Negativo (unario) & \texttt{-x} \\
+			Relacional & \texttt{=} \; \texttt{<>} & Igual y diferente & \texttt{5 <> 3} \\
+			& \texttt{<} \; \texttt{>} & Menor y mayor & \texttt{3 < 7} \\
+			& \texttt{<=} \; \texttt{>=} & Menor o igual, mayor o igual & \texttt{4 <= 9} \\
+			L\'ogico & \texttt{\&\&} & Y l\'ogico & \texttt{verdadero \&\& falso} \\
+			& \texttt{||} & O l\'ogico & \texttt{verdadero || falso} \\
+			& \texttt{!} & Negaci\'on & \texttt{!verdadero} \\
+			Asignaci\'on & \texttt{<-} & Asigna un valor a una variable & \texttt{x <- 10} \\
+			\bottomrule
+		\end{tabular}
+	\end{center}
+	
+	\textbf{Reglas:}
+	\begin{itemize}
+		\item \texttt{=} compara y \texttt{<-} asigna. \texttt{<-} es un solo
+		s\'imbolo: para comparar con un negativo se escribe
+		\texttt{x < -5}, con espacio.
+		\item \texttt{\&} y \texttt{|} solos no son operadores.
+		\item La asignaci\'on es una sentencia, no una expresi\'on.
+		\item Los operandos de los operadores aritm\'eticos deben ser
+		\texttt{entero} o \texttt{real}. Si uno es \texttt{real}, el
+		resultado es \texttt{real}.
+		\item La divisi\'on \texttt{/} siempre produce un \texttt{real}; dividir
+		entre cero es un error de ejecuci\'on. El operador \texttt{\%}
+		se aplica solo a enteros y devuelve el residuo.
+		\item El resultado de \texttt{\textasciicircum} es \texttt{entero} si
+		ambos operandos son \texttt{entero} y el exponente es mayor o
+		igual a 0; en otro caso es \texttt{real}.
+		\item Los operadores relacionales \texttt{<}, \texttt{>}, \texttt{<=} y
+		\texttt{>=} comparan n\'umeros; \texttt{=} y \texttt{<>} tambi\'en
+		comparan textos y valores l\'ogicos. El resultado es
+		\texttt{logico}.
+		\item Los operadores \texttt{\&\&}, \texttt{||} y \texttt{!} se aplican
+		solo a valores \texttt{logico}. \texttt{\&\&} y \texttt{||} se
+		eval\'uan en cortocircuito: el segundo operando se eval\'ua solo
+		si es necesario.
+		\item El operador \texttt{+} no concatena textos.
+	\end{itemize}
+	
+	\smallskip
+
+	\textbf{Precedencia} (de mayor a menor):
+	\begin{multicols}{2}
+		\begin{enumerate}
+			\item \texttt{( )} y \texttt{[ ]}
+			\item \texttt{\textasciicircum} (asocia de derecha a izquierda)
+			\item \texttt{!} y \texttt{-} unario
+			\item \texttt{*} \; \texttt{/} \; \texttt{\%}
+			\item \texttt{+} \; \texttt{-}
+			\item \texttt{<} \; \texttt{>} \; \texttt{<=} \; \texttt{>=}
+			\item \texttt{=} \; \texttt{<>}
+			\item \texttt{\&\&}
+			\item \texttt{||}
+		\end{enumerate}
+	\end{multicols}
+	
+	\subsection{Tipos de datos}
+	\begin{center}
+		\begin{tabular}{@{}lll@{}}
+			\toprule
+			\textbf{Tipo} & \textbf{Descripci\'on} & \textbf{Ejemplos} \\
+			\midrule
+			\texttt{entero} & N\'umeros enteros & \texttt{42}, \texttt{-7} \\
+			\texttt{real} & N\'umeros con parte decimal & \texttt{3.14}, \texttt{0.5} \\
+			\texttt{texto} & Cadena entre comillas dobles & \texttt{"hola"} \\
+			\texttt{logico} & Valor de verdad & \texttt{verdadero}, \texttt{falso} \\
+			\texttt{tipo[n]} & Arreglo de una dimensi\'on & \texttt{\{1, 2, 3\}} \\
+			\texttt{tipo[n][m]} & Arreglo de dos o m\'as dimensiones (matriz) & \texttt{\{\{1, 2\}, \{3, 4\}\}} \\
+			\texttt{vacio} & Sin valor (solo como tipo de retorno) & --- \\
+			\bottomrule
+		\end{tabular}
+	\end{center}
+	
+	\textbf{Reglas:}
+	\smallskip
+	
+	\noindent
+	\begin{minipage}[t]{0.55\linewidth}
+		\vspace{0pt}
+		\begin{itemize}
+			\item Un \texttt{real} lleva d\'igitos a ambos lados del punto: \texttt{0.5} es v\'alido; \texttt{.5} y \texttt{5.} no.
+			\item Un \texttt{entero} se convierte autom\'aticamente a \texttt{real} al combinarse con un \texttt{real}. Cualquier otra conversi\'on usa funciones built-in.
+			\item Un \texttt{texto} puede contener cualquier car\'acter ASCII imprimible, excepto comillas dobles y saltos de l\'inea sin	escapar. No se usan acentos ni la letra \texttt{\~n}.
+		\end{itemize}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[t]{0.41\linewidth}
+		\vspace{0pt}
+		Dentro de un texto, la barra invertida inicia una secuencia de escape.
+		Cualquier otra secuencia es un error.
+		
+		\medskip
+		\centering
+		\begin{tabular}{@{}ll@{}}
+			\toprule
+			\textbf{Secuencia} & \textbf{Significado} \\
+			\midrule
+			\texttt{\textbackslash n} & Salto de l\'inea \\
+			\texttt{\textbackslash t} & Tabulador \\
+			\texttt{\textbackslash "} & Comilla doble \\
+			\texttt{\textbackslash\textbackslash} & Barra invertida \\
+			\bottomrule
+		\end{tabular}
+	\end{minipage}
+	
+	\subsection{Variables, constantes, arreglos y matrices}
+	\begin{center}
+		\begin{tabular}{@{}ll@{}}
+			\toprule
+			\textbf{Forma} & \textbf{Sintaxis} \\
+			\midrule
+			Variable & \texttt{var nombre: tipo;} \\
+			Variable con valor inicial & \texttt{var nombre: tipo <- valor;} \\
+			Constante & \texttt{const NOMBRE: tipo <- valor;} \\
+			Arreglo & \texttt{var nombre: tipo[tamano];} \\
+			Arreglo con lista inicial & \texttt{var nombre: tipo[tamano] <- \{v1, v2, ...\};} \\
+			Matriz & \texttt{var nombre: tipo[filas][columnas];} \\
+			Matriz con lista inicial & \texttt{var nombre: tipo[filas][columnas] <- \{\{v1, v2\}, \{v3, v4\}\};} \\
+			Acceso a un elemento & \texttt{nombre[posicion]} \quad o \quad \texttt{nombre[fila][columna]} \\
+			Asignaci\'on & \texttt{nombre <- expresion;} \\
+			\bottomrule
+		\end{tabular}
+	\end{center}
+	
+	\textbf{Reglas:}
+	\begin{itemize}
+		\item Toda variable o constante se declara antes de usarse, y no se puede declarar dos veces el mismo nombre en un bloque.
+		\item Sin valor inicial, una variable toma el valor por defecto de su tipo: \texttt{0}, \texttt{0.0}, \texttt{\textquotedbl\textquotedbl} o \texttt{falso}. Los
+		elementos de un arreglo sin lista inicial toman el de su tipo base.
+		\item Una constante siempre se inicializa y no puede modificarse, ni tampoco los elementos si es un arreglo.
+		\item El valor asignado debe ser del tipo declarado, salvo la
+		conversi\'on de \texttt{entero} a \texttt{real}.
+		\item Un arreglo puede tener varias dimensiones: se escribe un tama\~no entre corchetes por cada una y se accede con un \'indice por cada una.
+		\item Cada tama\~no es una expresi\'on \texttt{entero} mayor que 0, evaluada una vez al declarar el arreglo; no cambia despu\'es. Un tama\~no menor o igual a 0 es un error de ejecuci\'on.
+		\item Las posiciones de cada dimensi\'on empiezan en \texttt{0}. Acceder
+		fuera del rango es un error de ejecuci\'on.
+		\item En una lista inicial, cada dimensi\'on se escribe como una lista entre llaves con exactamente tantos valores como su tama\~no; si no
+		coinciden, es un error. Las dimensiones adicionales se anidan.
+		\item Un arreglo de varias dimensiones es rectangular: todas sus filas tienen la misma longitud.
+	\end{itemize}
+	
+	\subsection{Entrada y salida}
+	\begin{center}
+		\begin{tabular}{@{}lll@{}}
+			\toprule
+			\textbf{Palabra} & \textbf{Sintaxis} & \textbf{Descripci\'on} \\
+			\midrule
+			\texttt{escribir} & \texttt{escribir(valor1, valor2, ...);} & Muestra los valores en pantalla \\
+			\texttt{leer} & \texttt{leer(variable);} & Lee un valor del teclado \\
+			\bottomrule
+		\end{tabular}
+	\end{center}
+	
+	\texttt{escribir} no agrega salto de l\'inea al final; para saltar se usa
+	\texttt{\textbackslash n}. \texttt{leer} interpreta el valor seg\'un el tipo
+	de la variable, que debe estar declarada.
+	
+	\newpage
+	
+	\section{Estructuras de control}
+	\subsection{Condicionales}
+	\begin{center}
+		\begin{tabular}{@{}ll@{}}
+			\toprule
+			\textbf{Forma} & \textbf{Sintaxis} \\
+			\midrule
+			Simple & \texttt{si (condicion) \{ instrucciones \}} \\
+			Con alternativa & \texttt{si (condicion) \{ ... \} sino \{ ... \}} \\
+			Con condiciones adicionales & \texttt{si (c1) \{ ... \} sino\_si (c2) \{ ... \} sino \{ ... \}} \\
+			\bottomrule
+		\end{tabular}
+	\end{center}
+	
+	\textbf{Reglas:}
+	\begin{itemize}
+		\item La condici\'on va entre par\'entesis y debe ser de tipo
+		\texttt{logico}.
+		\item Puede haber varios \texttt{sino\_si}; se eval\'uan en orden y se
+		ejecuta solo el bloque de la primera condici\'on verdadera.
+		\item \texttt{sino} es opcional, va al final y se ejecuta si ninguna
+		condici\'on se cumple.
+	\end{itemize}
+	
+	\begin{lstlisting}
+si (nota >= 90)
+{
+	escribir("Excelente\n");
+}
+sino_si (nota >= 70)
+{
+	escribir("Aprobado\n");
+}
+sino
+{
+	escribir("Reprobado\n");
+}
+	\end{lstlisting}
+	
+	\subsection{Ciclos}
+	\begin{center}
+		\begin{tabular}{@{}ll@{}}
+			\toprule
+			\textbf{Ciclo} & \textbf{Sintaxis} \\
+			\midrule
+			\texttt{mientras} & \texttt{mientras (condicion) \{ instrucciones \}} \\
+			\texttt{hacer} & \texttt{hacer \{ instrucciones \} mientras (condicion);} \\
+			\texttt{para} & \texttt{para variable desde inicio hasta fin \{ instrucciones \}} \\
+			\texttt{para} con paso & \texttt{para variable desde inicio hasta fin paso incremento \{ instrucciones \}} \\
+			\bottomrule
+		\end{tabular}
+	\end{center}
+	
+	\textbf{Reglas:}
+	\begin{itemize}
+		\item En \texttt{mientras} y \texttt{hacer}, la condici\'on va entre
+		par\'entesis y debe ser \texttt{logico}.
+		\item \texttt{mientras} eval\'ua la condici\'on antes de cada repetici\'on,
+		por lo que puede no ejecutarse nunca. \texttt{hacer} la eval\'ua
+		despu\'es, por lo que se ejecuta al menos una vez.
+		\item En \texttt{para}, la variable se declara en el propio ciclo, es de
+		tipo \texttt{entero} y solo existe dentro de \'el. No puede
+		modificarse dentro del bloque.
+		\item \texttt{inicio}, \texttt{fin} e \texttt{incremento} son
+		expresiones \texttt{entero}, evaluadas una sola vez al comenzar
+		el ciclo.
+		\item El rango incluye ambos extremos: \texttt{desde 0 hasta 4} recorre
+		0, 1, 2, 3 y 4.
+		\item Si se omite \texttt{paso}, vale 1. Con \texttt{paso} positivo el
+		ciclo contin\'ua mientras la variable sea menor o igual a
+		\texttt{fin}; con \texttt{paso} negativo, mientras sea mayor o
+		igual. Un \texttt{paso} igual a 0 es un error de ejecuci\'on.
+		\item Si el rango est\'a vac\'io (por ejemplo, \texttt{desde 5 hasta 1}
+		con paso 1), el bloque no se ejecuta.
+	\end{itemize}
+	
+	\begin{lstlisting}
+mientras (n > 0)
+{
+	n <- n - 1;
+}
+
+hacer
+{
+	leer(opcion);
+}
+mientras (opcion < 1 || opcion > 3);
+
+para i desde 10 hasta 0 paso -2
+{
+	escribir(i, " ");
+}
+	\end{lstlisting}
+	
+	
+	\subsection{Control de ciclos}
+	\begin{center}
+		\begin{tabular}{@{}lll@{}}
+			\toprule
+			\textbf{Palabra} & \textbf{Sintaxis} & \textbf{Efecto} \\
+			\midrule
+			\texttt{romper} & \texttt{romper;} & Termina el ciclo m\'as interno \\
+			\texttt{continuar} & \texttt{continuar;} & Salta a la siguiente repetici\'on del ciclo m\'as interno \\
+			\bottomrule
+		\end{tabular}
+	\end{center}
+	
+	\textbf{Reglas:}
+	\begin{itemize}
+		\item Solo pueden usarse dentro de un ciclo; fuera de uno son un error.
+		\item En \texttt{hacer}, \texttt{continuar} pasa a evaluar la condici\'on.
+		\item En \texttt{para}, \texttt{continuar} avanza la variable seg\'un el
+		\texttt{paso}.
+	\end{itemize}
+	
+	\newpage
+	
+	\section{Funciones}
+	\subsection{Declaraci\'on de funciones}
+	\begin{center}
+		\begin{tabular}{@{}ll@{}}
+			\toprule
+			\textbf{Forma} & \textbf{Sintaxis} \\
+			\midrule
+			Funci\'on & \texttt{funcion nombre(p1: tipo, p2: tipo): tipoRetorno \{ instrucciones \}} \\
+			Sin par\'ametros & \texttt{funcion nombre(): tipoRetorno \{ instrucciones \}} \\
+			Devolver un valor & \texttt{retornar expresion;} \\
+			Salir sin valor & \texttt{retornar;} \\
+			Llamada & \texttt{nombre(argumento1, argumento2)} \\
+			\bottomrule
+		\end{tabular}
+	\end{center}
+	
+	\textbf{Reglas:}
+	\begin{itemize}
+		\item Las funciones se declaran en el nivel externo del programa, no
+		dentro de otras funciones ni de bloques.
+		\item El orden de las funciones no importa: pueden usarse antes o
+		despu\'es de su declaraci\'on. Se permite la recursi\'on directa
+		y mutua.
+		\item No puede haber dos funciones con el mismo nombre.
+		\item El tipo de retorno es \texttt{entero}, \texttt{real},
+		\texttt{texto}, \texttt{logico} o \texttt{vacio}. Una funci\'on no
+		puede devolver un arreglo.
+		\item Una funci\'on \texttt{vacio} no devuelve valor y puede usar
+		\texttt{retornar;} para terminar. Una funci\'on con otro tipo de
+		retorno debe devolver un valor de ese tipo en todos sus caminos.
+		\item Los argumentos de una llamada deben coincidir en n\'umero y tipo con
+		los par\'ametros, salvo la conversi\'on de \texttt{entero} a
+		\texttt{real}.
+		\item Los par\'ametros de tipo \texttt{entero}, \texttt{real},
+		\texttt{texto} y \texttt{logico} se pasan por valor.
+		\item Un par\'ametro arreglo se escribe con corchetes vac\'ios, uno por
+		dimensi\'on (\texttt{entero[]}, \texttt{entero[][]}), y se pasa por
+		referencia: la funci\'on puede modificar sus elementos.
+		\item Los par\'ametros existen solo dentro de la funci\'on.
+		\item Una llamada a funci\'on con valor puede usarse dentro de una
+		expresi\'on; una funci\'on \texttt{vacio} se usa como sentencia.
+	\end{itemize}
+	
+	\subsubsection*{Funci\'on principal}
+	
+	\begin{itemize}
+		\item Todo programa tiene exactamente una funci\'on \texttt{principal},
+		de tipo \texttt{vacio} y sin par\'ametros. La ejecuci\'on inicia
+		en ella.
+	\end{itemize}
+	
+	\clearpage
+	
+	\subsubsection*{Variables y constantes globales}
+	
+	\begin{itemize}
+		\item Pueden declararse fuera de toda funci\'on y son visibles en todo
+		el programa a partir de su declaraci\'on.
+		\item Su valor inicial debe ser un literal o una expresi\'on con
+		constantes ya declaradas.
+	\end{itemize}
+	
+	\begin{lstlisting}
+// variable global
+var total: entero <- 0;
+
+funcion suma(m: entero[][]): entero
+{
+	var s: entero <- 0;
+	para i desde 0 hasta longitud(m) - 1
+	{
+		para j desde 0 hasta longitud(m[0]) - 1
+		{
+			s <- s + m[i][j];
+		}
+	}
+	retornar s;
+}
+	\end{lstlisting}
+	
+	\subsection{Funciones built-in}
+	
+	Son funciones predefinidas, disponibles sin declararlas. Sus nombres no pueden
+	usarse como identificadores.
+	
+	\begin{center}
+		\begin{tabular}{@{}llll@{}}
+			\toprule
+			\textbf{Funci\'on} & \textbf{Descripci\'on} & \textbf{Devuelve} & \textbf{Ejemplo} \\
+			\midrule
+			\texttt{raiz(x)} & Ra\'iz cuadrada & \texttt{real} & \texttt{raiz(16)} \\
+			\texttt{abs(x)} & Valor absoluto & Tipo de \texttt{x} & \texttt{abs(-5)} \\
+			\texttt{longitud(a)} & Elementos de un arreglo o caracteres de un texto & \texttt{entero} & \texttt{longitud(m)} \\
+			\texttt{aTexto(x)} & Convierte a texto & \texttt{texto} & \texttt{aTexto(42)} \\
+			\texttt{aEntero(x)} & Convierte a entero, truncando los decimales & \texttt{entero} & \texttt{aEntero(3.9)} \\
+			\bottomrule
+		\end{tabular}
+	\end{center}
+	
+	\textbf{Reglas:}
+	\begin{itemize}
+		\item \texttt{raiz} recibe un n\'umero mayor o igual a 0; de lo contrario
+		es un error de ejecuci\'on.
+		\item \texttt{longitud} de un arreglo de varias dimensiones devuelve el
+		tama\~no de la primera; \texttt{longitud(m[0])} da el de la segunda.
+		\item \texttt{aEntero} acepta \texttt{real} o \texttt{texto}; si el texto
+		no representa un entero, es un error de ejecuci\'on.
+		\item \texttt{aTexto} acepta \texttt{entero}, \texttt{real} o
+		\texttt{logico}.
+	\end{itemize}
+	
+	\newpage
+	
+	\section{Ejemplos de programas}
+	\subsection{Hola, mundo!}
+	\begin{lstlisting}
+// Programa minimo en Lumen
+funcion principal(): vacio
+{
+	escribir("Hola, mundo\n");
+}
+	\end{lstlisting}
+	
+	\subsection{Secuencia de Fibonacci}
+	\begin{lstlisting}
+// Muestra los primeros N terminos de la serie de Fibonacci
+const N: entero <- 10;
+
+funcion principal(): vacio
+{
+	var serie: entero[N];
+	serie[0] <- 0;
+	serie[1] <- 1;
+	
+	para i desde 2 hasta N - 1
+	{
+		serie[i] <- serie[i - 1] + serie[i - 2];
+	}
+	
+	para i desde 0 hasta N - 1
+	{
+		escribir(serie[i], " ");
+	}
+	escribir("\n");
+}
+	\end{lstlisting}
+	
+	\clearpage
+	
+	\subsection{Verificaci\'on de n\'umero primo}
+	\begin{lstlisting}
+// Devuelve verdadero si n es primo
+funcion esPrimo(n: entero): logico
+{
+	si (n < 2)
+	{
+		retornar falso;
+	}
+	
+	var limite: entero <- aEntero(raiz(n));
+	para d desde 2 hasta limite
+	{
+		si (n % d = 0)
+		{
+			retornar falso;
+		}
+	}
+	retornar verdadero;
+}
+
+funcion principal(): vacio
+{
+	var numero: entero;
+	escribir("Ingrese un numero: ");
+	leer(numero);
+	
+	si (esPrimo(numero))
+	{
+		escribir(numero, " es primo\n");
+	}
+	sino
+	{
+		escribir(numero, " no es primo\n");
+	}
+}
+	\end{lstlisting}
+	
+\end{document}
